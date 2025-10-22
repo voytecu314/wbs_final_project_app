@@ -1,0 +1,27 @@
+name: wbs_final_project_app
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core Python
+  - python=3.11
+  
+  # LLM & RAG tools
+  - llama-index
+  
+  # Web & UI
+  - streamlit
+  
+  # Utilities
+  - python-dotenv
+  
+  # Development tools
+  - pytest
+  - ruff
+  - mypy
+  - pre_commit
+
+  # Pip-only packages
+  - pip:
+    - llama-index-embeddings-huggingface
+    - llama-index-llms-groq

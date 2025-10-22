@@ -1,0 +1,89 @@
+name: Tests, linter, formatter, types check
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "app.py"
+      - "environment.yml"
+      - "pyproject.toml"
+      - "rag/**"
+      - "test/**"
+      - "st_components/**"
+      - "requirements.txt"
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - "app.py"
+      - "environment.yml"
+      - "pyproject.toml"
+      - "rag/**"
+      - "test/**"
+      - "st_components/**"
+      - "requirements.txt"
+      - ".github/workflows/**"
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Copy my repo to vm 
+        uses: actions/checkout@v4
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.11"
+          activate-environment: edu_env
+          environment-file: environment.yml
+          auto-update-conda: true
+          use-only-tar-bz2: false
+
+      - name: Run tests
+        shell: bash -el {0}
+        run: pytest -v test/
+
+  lint-and-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Copy my repo to vm 
+        uses: actions/checkout@v4
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.11"
+          activate-environment: edu_env
+          environment-file: environment.yml
+          auto-update-conda: true
+          use-only-tar-bz2: false
+
+      - name: Run ruff linter
+        shell: bash -el {0}
+        run: ruff check .
+      
+      - name: Run ruff formatter
+        shell: bash -el {0}
+        run: ruff format . --check
+
+  type-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Copy my repo to vm 
+        uses: actions/checkout@v4
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.11"
+          activate-environment: edu_env
+          environment-file: environment.yml
+          auto-update-conda: true
+          use-only-tar-bz2: false
+
+      - name: Run mypy type checker
+        shell: bash -el {0}
+        run: mypy .
