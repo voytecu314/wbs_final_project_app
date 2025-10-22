@@ -16,3 +16,8 @@
 ```bash
    pre-commit install
 ```
+
+4. Run the App
+```bash
+   streamlit run app.py
+```
