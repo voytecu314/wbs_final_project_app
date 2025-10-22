@@ -17,7 +17,13 @@
    pre-commit install
 ```
 
-4. Run the App
+4. Create .env file
+```bash
+   touch .env
+```
+Refer to .env_example and populate the .env file accordingly.
+
+5. Run the App
 ```bash
    streamlit run app.py
 ```
