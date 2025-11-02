@@ -10,9 +10,9 @@ def render_rag_chat():
 
     rag_bot = init_bot()
 
-    st.title("Example: The Future Of The Water")
+    st.title("Metalltechnik")
     st.markdown(
-        "![Alt Text](https://i.postimg.cc/T2nB3n6W/Chat-GPT-Image-Oct-20-2025-02-18-04-PM.png)"
+        "![Alt Text](https://bbs-jever.de/files/content/fotos/fachbereich_technik/Metalltechnik/Metalltechnik.jpg)"
     )
 
     # Display chat messages from history on app rerun
