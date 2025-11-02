@@ -25,3 +25,6 @@ dependencies:
   - pip:
     - llama-index-embeddings-huggingface
     - llama-index-llms-groq
+    - streamlit-webrtc
+    - mediapipe
+    - opencv-python
