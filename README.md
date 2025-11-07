@@ -1,4 +1,6 @@
-## Setup
+## Setup for contributors
+(Prerequisites: git and conda installed)
+Run all commands from the root folder (wbs_final_project_app).
 
 1. Clone the repo:
 ```bash
@@ -17,7 +19,29 @@
    pre-commit install
 ```
 
-4. Run the App
+4. Create .env file
+```bash
+   touch .env
+```
+Refer to .env_example and populate the .env file accordingly.
+
+5. Run the App
 ```bash
    streamlit run app.py
 ```
+
+6. If already cloned and pulled with 
+```bash
+   git pull
+```
+then before running streamlit app (point 5) 
+if the RAG document was changed or exchanged
+delete vectore_store folder
+```bash
+   rm -r rag/vectore_store
+```
+and then update the environment:
+```bash
+   conda env update
+```
+
