@@ -6,7 +6,6 @@ repos:
         entry: ruff check
         language: system
         types: [python]
-        args: ['.']
       
       - id: ruff-format
         name: ruff formatter
