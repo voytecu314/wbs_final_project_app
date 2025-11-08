@@ -27,6 +27,8 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
     steps:
       - name: Copy my repo to vm 
         uses: actions/checkout@v4
