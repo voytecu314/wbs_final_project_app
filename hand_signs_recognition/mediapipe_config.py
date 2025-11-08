@@ -2,6 +2,38 @@ import pickle
 
 import mediapipe as mp
 
+labels_dict = {
+    0: "Zange",
+    1: "Lehrer",
+    2: "Lehrnen",
+    3: "Schule",
+    4: "Anschmieren",
+    5: "Blech",
+    6: "Hammer",
+    7: "Hebelblechschere",
+    8: "Meißel",
+    9: "Metall",
+    10: "Montieren",
+    11: "Schrauben",
+    12: "Schweissautomat",
+    13: "Sicherheit",
+    14: "Schraubenschlüssel",
+    15: "Körner",
+    16: "Maschinenschraubstock",
+    17: "Drehmaschine",
+    18: "Gewindemeissel",
+    19: "Anreissplatte",
+    20: "Anreissnadel",
+    21: "Bandsaege",
+    22: "Bohrmaschine",
+    23: "Drehmomentschlüssel",
+    24: "Feile",
+    25: "Maulschlüssel",
+    26: "Messschieber",
+    27: "Saege",
+    28: "Spiralbohrer",
+}
+
 
 class MediaPipeConfig:
     """Configuration and initialization for MediaPipe hands detection."""
@@ -28,7 +60,7 @@ class MediaPipeConfig:
 
         # Model configuration
         self.EXPECTED_LENGTH = 84
-        self.labels_dict = {0: "Hammer", 1: "Lehrer", 2: "Lehrnen", 3: "Schule"}
+        self.labels_dict = labels_dict
 
         # Load ML model
         self.model = self._load_model()
