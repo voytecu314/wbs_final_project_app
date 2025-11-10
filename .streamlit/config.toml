@@ -1,0 +1,236 @@
+# ==============================================================================
+# Streamlit Configuration for Educational Metallurgy App
+# For German students with hearing disabilities
+# ==============================================================================
+
+# ==============================================================================
+# THEME CONFIGURATION - Main Application
+# ==============================================================================
+[theme]
+# Base theme - using light for better readability for children
+base = "light"
+
+# Primary accent color - Industrial steel blue that relates to metallurgy
+# Provides strong contrast for accessibility
+primaryColor = "#2563eb"
+
+# Main background - Soft white for reduced eye strain
+backgroundColor = "#f8fafc"
+
+# Secondary background - Light gray for widget areas, subtle contrast
+secondaryBackgroundColor = "#e2e8f0"
+
+# Text color - Dark slate for excellent readability (WCAG AAA compliant)
+textColor = "#1e293b"
+
+# ==============================================================================
+# EXTENDED COLOR PALETTE - Optimized for visual accessibility
+# ==============================================================================
+
+# Red - Used for warnings and important alerts (high contrast)
+redColor = "#dc2626"
+redBackgroundColor = "#fee2e2"
+redTextColor = "#991b1b"
+
+# Orange - For moderate alerts and highlights
+orangeColor = "#ea580c"
+orangeBackgroundColor = "#ffedd5"
+orangeTextColor = "#c2410c"
+
+# Yellow - For tips and informational highlights
+yellowColor = "#eab308"
+yellowBackgroundColor = "#fef9c3"
+yellowTextColor = "#a16207"
+
+# Blue - For interactive elements and information (metallurgy theme)
+blueColor = "#2563eb"
+blueBackgroundColor = "#dbeafe"
+blueTextColor = "#1e40af"
+
+# Green - For success states and positive feedback
+greenColor = "#16a34a"
+greenBackgroundColor = "#dcfce7"
+greenTextColor = "#166534"
+
+# Violet - For special features and creative elements
+violetColor = "#7c3aed"
+violetBackgroundColor = "#ede9fe"
+violetTextColor = "#5b21b6"
+
+# Gray - For neutral elements and disabled states
+grayColor = "#64748b"
+grayBackgroundColor = "#f1f5f9"
+grayTextColor = "#475569"
+
+# ==============================================================================
+# TYPOGRAPHY - Optimized for young learners with hearing disabilities
+# ==============================================================================
+
+# Main font - Clean, highly readable sans-serif
+font = "sans-serif"
+
+# Heading font - Same as body for consistency and clarity
+headingFont = "sans-serif"
+
+# Base font size - Larger for better readability (default is 16px)
+baseFontSize = 18
+
+# Base font weight - Regular weight for comfortable reading
+baseFontWeight = 400
+
+# Heading font sizes - Progressive hierarchy, larger for emphasis
+# [h1, h2, h3, h4, h5, h6]
+headingFontSizes = ["3rem", "2.5rem", "2rem", "1.75rem", "1.5rem", "1.25rem"]
+
+# Heading font weights - Bold for clear visual hierarchy
+# [h1, h2, h3, h4, h5, h6]
+headingFontWeights = [700, 700, 600, 600, 600, 600]
+
+# Code font settings - For any technical metallurgy formulas
+codeFont = "monospace"
+codeFontSize = "1rem"
+codeFontWeight = 500
+
+# ==============================================================================
+# UI ELEMENTS & INTERACTIVITY
+# ==============================================================================
+
+# Link styling - Clear, accessible link colors
+linkColor = "#2563eb"
+linkUnderline = true
+
+# Code background - Subtle gray for code blocks
+codeBackgroundColor = "#f1f5f9"
+
+# Border radius - Modern, friendly rounded corners
+baseRadius = "0.75rem"
+buttonRadius = "0.625rem"
+
+# Border colors - Soft borders that don't overwhelm
+borderColor = "#cbd5e1"
+dataframeBorderColor = "#94a3b8"
+
+# Dataframe header - Distinct but not harsh
+dataframeHeaderBackgroundColor = "#e2e8f0"
+
+# Widget borders - Visible for clarity, especially important for accessibility
+showWidgetBorder = true
+
+# Sidebar separator - Clear visual division
+showSidebarBorder = true
+
+# ==============================================================================
+# CHART COLORS - Metallurgy-themed, accessible palette
+# ==============================================================================
+
+# Categorical colors - Industrial metallurgy palette with high contrast
+# Steel blues, iron grays, copper oranges, silver, gold tones
+chartCategoricalColors = [
+    "#2563eb",  # Steel blue
+    "#64748b",  # Iron gray
+    "#ea580c",  # Copper orange
+    "#16a34a",  # Patina green
+    "#eab308",  # Gold yellow
+    "#7c3aed",  # Titanium purple
+    "#dc2626",  # Rust red
+    "#0891b2",  # Zinc cyan
+    "#475569",  # Dark steel
+    "#f59e0b",  # Bronze
+]
+
+# Sequential colors - Blue gradient for data visualization (light to dark)
+chartSequentialColors = [
+    "#eff6ff",  # Very light blue
+    "#dbeafe",  # Light blue
+    "#bfdbfe",  # Soft blue
+    "#93c5fd",  # Medium light blue
+    "#60a5fa",  # Medium blue
+    "#3b82f6",  # Standard blue
+    "#2563eb",  # Strong blue
+    "#1d4ed8",  # Dark blue
+    "#1e40af",  # Very dark blue
+    "#1e3a8a",  # Deepest blue
+]
+
+# ==============================================================================
+# SIDEBAR THEME - Complementary styling for navigation
+# ==============================================================================
+[theme.sidebar]
+# Sidebar gets a slightly darker background for visual separation
+backgroundColor = "#e2e8f0"
+secondaryBackgroundColor = "#cbd5e1"
+
+# Text and primary colors remain consistent with main theme
+textColor = "#1e293b"
+primaryColor = "#2563eb"
+
+# Sidebar-specific typography - Slightly smaller than main content
+headingFontSizes = ["1.75rem", "1.5rem", "1.25rem", "1.125rem", "1rem", "0.875rem"]
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+
+# Maintain consistent interactivity
+linkColor = "#2563eb"
+linkUnderline = true
+showWidgetBorder = true
+
+# Sidebar borders and radius match main theme
+baseRadius = "0.75rem"
+buttonRadius = "0.625rem"
+borderColor = "#94a3b8"
+
+# ==============================================================================
+# CLIENT SETTINGS - Enhanced user experience
+# ==============================================================================
+[client]
+# Show full error details during development, helpful for educators
+showErrorDetails = "none"
+
+# Auto toolbar mode - clean interface for students
+toolbarMode = "minimal"
+
+# Show sidebar navigation in multi-page apps
+showSidebarNavigation = true
+
+
+# ==============================================================================
+# RUNNER SETTINGS - Performance optimization
+# ==============================================================================
+[runner]
+# Enable magic commands for simpler code demonstrations
+magicEnabled = true
+
+# Fast reruns for responsive interactions (important for engagement)
+fastReruns = true
+
+# ==============================================================================
+# SERVER SETTINGS - Basic configuration
+# ==============================================================================
+[server]
+# Automatically open browser on start for ease of use
+headless = false
+
+# Auto-reload on file save during development
+runOnSave = false
+
+# Standard port
+port = 8501
+
+# Max upload size - 200MB for images/videos of metallurgy processes
+maxUploadSize = 200
+
+# ==============================================================================
+# BROWSER SETTINGS
+# ==============================================================================
+[browser]
+# Gather usage stats - set to false if privacy is a concern for school use
+gatherUsageStats = false
+
+# ==============================================================================
+# GLOBAL SETTINGS
+# ==============================================================================
+[global]
+# Disable widget state duplication warning for cleaner experience
+disableWidgetStateDuplicationWarning = true
+
+# Show warning for direct script execution
+showWarningOnDirectExecution = true
