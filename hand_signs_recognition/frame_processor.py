@@ -25,7 +25,8 @@ def create_frame_callback(config, prediction_state):
 
         # Prepare RGB image for MediaPipe (it expects RGB)
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-
+        # Flip the frame horizontally for a mirror effect
+        img_rgb = cv2.flip(img_rgb, 1)
         # Process the frame to find hands
         results = config.hands.process(img_rgb)
 
@@ -88,7 +89,7 @@ def create_frame_callback(config, prediction_state):
                     confidence = max(prediction_proba[0])  # Highest probability
 
                     # Only accept if confidence is high enough
-                    if confidence < 0.8:  # Adjust threshold (0.8 = 80% confidence)
+                    if confidence < 0.3:  # Adjust threshold (0.3 = 30% confidence)
                         predicted_character = "Unknown gesture"
                     elif predicted_class in config.labels_dict:
                         predicted_character = (
