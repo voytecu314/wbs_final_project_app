@@ -1,129 +1,141 @@
-import random
-
-import plotly.graph_objects as go
 import streamlit as st
+
+from rag.chat_engine import create_chat_engine
 
 
 def render_quiz_tools():
-    st.title("🎮 Gamified Feedback — Sign to Learn")
+    st.title("🎮 Gamified Learning — Metalltechnik Quiz")
     st.markdown("""
-    ### 🧠 Learn by Doing — Interactive Quiz
-    This page helps you test your understanding of different tools 
-    or concepts related to sign language gestures.  
-    Earn XP points for correct answers and level up as you progress!
+    Test your knowledge with adaptive questions derived from your RAG documents.  
+    Earn XP and level up as you master each topic! 🔧⚙️
     """)
 
-    # Initialize XP and level tracking
-    if "xp" not in st.session_state:
-        st.session_state.xp = 0
-    if "level" not in st.session_state:
-        st.session_state.level = 1
+    # ------------------
+    # SESSION STATE
+    # ------------------
+    for key, default in {
+        "xp": 0,
+        "level": 1,
+        "difficulty": "easy",
+        "current_question": None,
+        "user_answer": None,
+        "correct_letter": None,
+    }.items():
+        if key not in st.session_state:
+            st.session_state[key] = default
 
-    # Quiz setup
-    st.subheader("🧰 Choose a Topic")
-    selected_tool = st.selectbox(
-        "Select a tool to start your quiz:",
-        ["Screwdriver", "Hammer", "Wrench", "Pliers"],
+    # ------------------
+    # LOAD RAG ENGINE
+    # ------------------
+    @st.cache_resource
+    def init_bot():
+        return create_chat_engine()
+
+    rag_bot = init_bot()
+
+    # ------------------
+    # GENERATE QUIZ QUESTION (parse text for correct answer)
+    # ------------------
+    def generate_quiz_question(topic, difficulty):
+        prompt = f"""
+        You are a quiz generator for a German metalworking (Metalltechnik).
+        Create multiple-choice question of difficulty {difficulty} 
+        on the topic "{topic}".
+        Provide 4 options (A–D) and indicate the correct answer in this format:
+        Q: <question>
+        A) ...
+        B) ...
+        C) ...
+        D) ...
+        Correct: <letter>
+        """
+        response = rag_bot.chat(prompt)
+        lines = str(response).splitlines()
+
+        question_lines = []
+        correct_letter = None
+        for line in lines:
+            if line.strip().startswith("Correct:"):
+                correct_letter = line.split(":")[-1].strip().upper()
+            else:
+                question_lines.append(line)
+
+        question_text = "\n".join(question_lines)
+        if not correct_letter:
+            correct_letter = "A"  # fallback in case parsing fails
+        return question_text, correct_letter
+
+    # ------------------
+    # QUIZ INTERFACE
+    # ------------------
+    topic = st.selectbox(
+        "🔩 Choose a topic:",
+        [
+            "Werkzeuge",
+            "Sicherheit",
+            "Maschinen",
+            "Schweißen",
+            "Feilen",
+            "Drehen",
+            "Metallarten",
+        ],
     )
 
-    if selected_tool == "Screwdriver":
-        st.image(
-            "https://upload.wikimedia.org/wikipedia/commons/3/3b/Screwdriver.jpg",
-            caption="Screwdriver 🪛",
+    if st.button("🎯 Generate Question"):
+        question, correct = generate_quiz_question(topic, st.session_state.difficulty)
+        st.session_state.current_question = question
+        st.session_state.correct_letter = correct
+        st.session_state.user_answer = None
+
+    # Display current question
+    if st.session_state.current_question:
+        st.markdown("### 🧠 Your Question:")
+        st.markdown(st.session_state.current_question)
+
+        st.session_state.user_answer = st.radio(
+            "Your Answer:", ["A", "B", "C", "D"], horizontal=True
         )
-        question = "What is the main purpose of a screwdriver?"
-        options = ["Tighten or loosen screws", "Cut wires", "Hammer nails"]
-        correct = "Tighten or loosen screws"
 
-    elif selected_tool == "Hammer":
-        st.image(
-            "https://upload.wikimedia.org/wikipedia/commons/8/8c/Hammer.jpg",
-            caption="Hammer 🔨",
-        )
-        question = "Which material is best hammered with this tool?"
-        options = ["Wood", "Glass", "Rubber"]
-        correct = "Wood"
+        # Submit answer
+        if st.button("✅ Submit Answer"):
+            if st.session_state.user_answer == st.session_state.correct_letter:
+                st.success("🎉 Correct! +10 XP")
+                st.session_state.xp += 10
+            else:
+                st.error(
+                    f"""❌ Incorrect. The correct answer was 
+                    **{st.session_state.correct_letter}**."""
+                )
 
-    elif selected_tool == "Wrench":
-        st.image(
-            "https://upload.wikimedia.org/wikipedia/commons/2/2b/Wrench.jpg",
-            caption="Wrench 🔧",
-        )
-        question = "What is a wrench mainly used for?"
-        options = ["Tighten bolts and nuts", "Measure distances", "Mix paint"]
-        correct = "Tighten bolts and nuts"
+            # Update difficulty based on XP
+            if st.session_state.xp >= 50:
+                st.session_state.level = 2
+                st.session_state.difficulty = "medium"
+            if st.session_state.xp >= 100:
+                st.session_state.level = 3
+                st.session_state.difficulty = "hard"
 
-    else:
-        st.image(
-            "https://upload.wikimedia.org/wikipedia/commons/2/28/Pliers.jpg",
-            caption="Pliers 🔗",
-        )
-        question = "What action are pliers best for?"
-        options = ["Grip or bend wires", "Paint surfaces", "Drill holes"]
-        correct = "Grip or bend wires"
+        # Next question
+        if st.button("🎯 Next Question"):
+            question, correct = generate_quiz_question(
+                topic, st.session_state.difficulty
+            )
+            st.session_state.current_question = question
+            st.session_state.correct_letter = correct
+            st.session_state.user_answer = None
 
-    # Quiz Question
-    st.subheader("🧩 Quick Quiz")
-    user_answer = st.radio(question, options)
-
-    if st.button("Submit Answer"):
-        if user_answer == correct:
-            st.success("✅ Correct! +10 XP")
-            st.session_state.xp += 10
-
-            if st.session_state.xp % 50 == 0:
-                st.session_state.level += 1
-                st.balloons()
-                st.success(f"🎉 Level Up! You are now Level {st.session_state.level}")
-        else:
-            st.error("❌ Oops! That’s not correct. Try again!")
-
-        feedback = random.choice(
-            [
-                "Great job 👏",
-                "You're improving fast 🚀",
-                "Keep up the good work 💪",
-                "Nice progress 🌟",
-            ]
-        )
-        st.info(feedback)
-
-    # XP Progress Section
-    st.subheader("📊 XP Progress Tracker")
-
-    # Linear progress bar
-    st.progress(min(st.session_state.xp % 100, 100) / 100)
-    st.metric("Total XP", st.session_state.xp)
-    st.metric("Level", st.session_state.level)
-
-    # Plotly XP Gauge
-    fig = go.Figure(
-        go.Indicator(
-            mode="gauge+number+delta",
-            value=st.session_state.xp % 100,
-            delta={"reference": 50, "increasing": {"color": "green"}},
-            gauge={
-                "axis": {"range": [0, 100]},
-                "bar": {"color": "royalblue"},
-                "steps": [
-                    {"range": [0, 50], "color": "lightgray"},
-                    {"range": [50, 100], "color": "lightgreen"},
-                ],
-                "threshold": {
-                    "line": {"color": "red", "width": 4},
-                    "thickness": 0.75,
-                    "value": 100,
-                },
-            },
-            title={"text": "XP Gauge"},
-        )
+    # ------------------
+    # XP PROGRESS
+    # ------------------
+    st.markdown("### 📊 XP Progress")
+    st.progress(min(st.session_state.xp / 100, 1.0))
+    st.info(
+        f"""Level {st.session_state.level} — XP: 
+        {st.session_state.xp} — Difficulty: 
+        {st.session_state.difficulty.capitalize()}"""
     )
-    st.plotly_chart(fig, use_container_width=True)
 
-    # Encouragement message
-    if st.session_state.xp < 30:
-        st.caption("✨ Keep learning! You’re just getting started.")
-    elif st.session_state.xp < 100:
-        st.caption("🔥 Nice! You’re building strong understanding.")
-    else:
-        st.caption("🏆 You’re a pro learner!")
+
+# Run directly for testing
+if __name__ == "__main__":
+    render_quiz_tools()
