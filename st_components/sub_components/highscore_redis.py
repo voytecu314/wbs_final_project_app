@@ -1,9 +1,14 @@
+import os
+
+from dotenv import load_dotenv
+
 import streamlit as st
 import redis
 import pandas as pd
 from typing import List, Dict, Optional
 
-REDIS_URL="rediss://default:AWMgAAIncDI2ZWM4MjE1ZThiNjE0ZmYwOTgwNGMzYzQ0ZjAwYjBjYnAyMjUzNzY@choice-ladybird-25376.upstash.io:6379"  # Replace with your Redis URL
+load_dotenv()
+REDIS_URL = os.getenv("REDIS_URL")
 
 @st.cache_resource
 def get_redis_client():
