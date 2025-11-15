@@ -9,6 +9,7 @@ from hand_signs_recognition_for_quiz.mediapipe_config import MediaPipeConfig
 from hand_signs_recognition_for_quiz.prediction_state import PredictionState
 
 from .sub_components.highscore_redis import main as highscores
+from st_components import translate
 
 quiz_classes = ["6","12","11","28","14"]
 pics_names = [
@@ -18,13 +19,6 @@ pics_names = [
     "217spiralbohrer",
     "Maulschluessel1"
     ]
-
-def translate(english_text, german_text):
-    """Simple translation function based on session state."""
-    if "language" in st.session_state and st.session_state.language == "German":
-        return german_text
-    return english_text
-
 
 def render_quiz_hand_signs():
     """Main Streamlit UI for hand signs recognition."""
