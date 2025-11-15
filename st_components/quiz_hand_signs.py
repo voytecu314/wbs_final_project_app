@@ -9,7 +9,7 @@ from hand_signs_recognition_for_quiz.mediapipe_config import MediaPipeConfig
 from hand_signs_recognition_for_quiz.prediction_state import PredictionState
 
 from .sub_components.highscore_redis import main as highscores
-from st_components import translate
+from utils import translate
 
 quiz_classes = ["6","12","11","28","14"]
 pics_names = [
