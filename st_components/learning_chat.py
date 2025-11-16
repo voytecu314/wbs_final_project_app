@@ -10,8 +10,6 @@ from hand_signs_recognition_for_rag.prediction_state import PredictionState
 
 from st_components.sub_components.rag import render_rag_chat
 
-from streamlit_tile import streamlit_tile
-
 # Question database
 QUESTIONS_DB = {
     "Zange": [
