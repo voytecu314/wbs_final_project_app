@@ -5,7 +5,7 @@ from st_components.home import render_home
 from st_components.quiz_hand_signs import render_quiz_hand_signs
 from st_components.quiz_tools import render_quiz_tools
 from st_components.martins_page import render_martins_page
-
+from st_components.stats_page import render_stats_page
 
 # --- CSS: make sidebar buttons look like links/text ---
 st.markdown("""
@@ -74,4 +74,4 @@ elif st.session_state.page == "Tools Quiz":
 elif st.session_state.page == "Hand Signs Quiz":
     render_quiz_hand_signs()
 elif st.session_state.page == "STATS":
-    pass
+    render_stats_page()
