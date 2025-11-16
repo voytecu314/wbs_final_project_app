@@ -76,19 +76,19 @@ def render_home():
     cta_col1, cta_col2, cta_col3 = st.columns(3)
 
     with cta_col1:  # Entspricht "Schnelle Hilfe" (Chat)
-        if st.button("**Chat** 💬", type="primary", use_container_width=True):
+        if st.button("**Chat** 💬", type="primary", width="stretch"):
             st.session_state.clicks_chat += 1
             st.session_state.page = "Chat"
             st.rerun()
 
     with cta_col2:  # Entspricht "Interaktive Szenarien" (Quiz)
-        if st.button("**Werkstatt-Quiz** 🛠️", use_container_width=True):
+        if st.button("**Werkstatt-Quiz** 🛠️", width="stretch"):
             st.session_state.clicks_quiz += 1
             st.session_state.page = "Quiz"
             st.rerun()
 
     with cta_col3:  # Entspricht "DGS-Erkennung" (Challenge)
-        if st.button("**Kamera-Challenge** 🤟", use_container_width=True):
+        if st.button("**Kamera-Challenge** 🤟", width="stretch"):
             st.session_state.clicks_challenge += 1
             st.session_state.page = "Challenge"
             st.rerun()
