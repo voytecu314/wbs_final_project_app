@@ -1,11 +1,10 @@
 import os
+from typing import Dict, List, Optional
 
-from dotenv import load_dotenv
-
-import streamlit as st
-import redis
 import pandas as pd
-from typing import List, Dict, Optional
+import redis
+import streamlit as st
+from dotenv import load_dotenv
 
 load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL")
