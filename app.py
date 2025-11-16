@@ -4,21 +4,21 @@ from st_components.hand_signs_recognition import render_hand_signs_recognition
 from st_components.home import render_home
 from st_components.quiz_hand_signs import render_quiz_hand_signs
 from st_components.quiz_tools import render_quiz_tools
-from st_components.rag import render_rag_chat
 from st_components.quiz_workshop import render_quiz_simulation
+from st_components.rag import render_rag_chat
 
 # Shared sidebar
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
-    "Go to", 
+    "Go to",
     [
-        "Home", 
+        "Home",
         "RAG Chat",
-        "Workshop Simulation Quiz", 
-        "Hand Signs Recognition", 
-        "Tools Quiz", 
-        "Hand Signs Quiz"
-    ]
+        "Workshop Simulation Quiz",
+        "Hand Signs Recognition",
+        "Tools Quiz",
+        "Hand Signs Quiz",
+    ],
 )
 
 # Page routing

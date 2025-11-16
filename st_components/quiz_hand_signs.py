@@ -10,14 +10,15 @@ from hand_signs_recognition_for_quiz.prediction_state import PredictionState
 
 from .sub_components.highscore_redis import main as highscores
 
-quiz_classes = ["6","12","11","28","14"]
+quiz_classes = ["6", "12", "11", "28", "14"]
 pics_names = [
     "089hammer",
     "schwei_automat",
     "204schrauben",
     "217spiralbohrer",
-    "Maulschluessel1"
-    ]
+    "Maulschluessel1",
+]
+
 
 def translate(english_text, german_text):
     """Simple translation function based on session state."""
@@ -56,22 +57,18 @@ def render_quiz_hand_signs():
         register_nickname()
 
     else:
-
         # Header
         st.markdown(
             f"Hello, **{st.session_state.nickname}**! Welcome to the Hand Signs Quiz."
-            if 
-            st.session_state.language == "English"
-            else 
-            f"Hallo, **{st.session_state.nickname}**! Willkommen zum Handzeichen-Quiz."
+            if st.session_state.language == "English"
+            else f"Hallo, **{st.session_state.nickname}**!"
+            f"Willkommen zum Handzeichen-Quiz."
         )
         st.title(
             "Use hand signs for this quiz."
-            if 
-            st.session_state.language == "English"
-            else
-            "Verwende Handzeichen für dieses Quiz."
-            )
+            if st.session_state.language == "English"
+            else "Verwende Handzeichen für dieses Quiz."
+        )
 
         # Load MediaPipe config and model (cached)
         @st.cache_resource
@@ -80,9 +77,13 @@ def render_quiz_hand_signs():
 
         config = load_config()
         if "correct_class_index" not in st.session_state:
-            st.session_state.correct_class_index = random.randint(0, len(quiz_classes)-1)
+            st.session_state.correct_class_index = random.randint(
+                0, len(quiz_classes) - 1
+            )
         if "correct_class" not in st.session_state:
-            st.session_state.correct_class = quiz_classes[st.session_state.correct_class_index]
+            st.session_state.correct_class = quiz_classes[
+                st.session_state.correct_class_index
+            ]
         if "points" not in st.session_state:
             st.session_state.points = 0
 
@@ -95,8 +96,10 @@ def render_quiz_hand_signs():
         quiz_container, cam_webrtc = st.columns([1, 1], vertical_alignment="top")
 
         # Create callback function
-        callback = create_frame_callback(config, prediction_state, st.session_state.correct_class)
-        
+        callback = create_frame_callback(
+            config, prediction_state, st.session_state.correct_class
+        )
+
         # WebRTC Streamer
         with cam_webrtc:
             webrtc_ctx = webrtc_streamer(
@@ -109,7 +112,9 @@ def render_quiz_hand_signs():
 
         # Display current prediction with live updates
         with quiz_container:
-            st.markdown(translate("### What is this tool?", "### Was ist dieses Werkzeug?"))
+            st.markdown(
+                translate("### What is this tool?", "### Was ist dieses Werkzeug?")
+            )
             st.markdown(
                 f"""![Alt Text](https://fachgebaerdenlexikon.de/fileadmin/_migrated/pics/{pics_names[st.session_state.correct_class_index]}.jpg)"""
             )
@@ -121,9 +126,13 @@ def render_quiz_hand_signs():
         if webrtc_ctx.state.playing:
             while webrtc_ctx.state.playing:
                 current_strength = prediction_state.get_prediction_strength()
-                bar_percent = current_strength if .05 < current_strength <= 1 else 0
+                bar_percent = current_strength if 0.05 < current_strength <= 1 else 0
                 progress.progress(bar_percent)
-                prediction_weight = bar_percent if bar_percent == 0 else round(sum(prediction_state.predictions_weights))
+                prediction_weight = (
+                    bar_percent
+                    if bar_percent == 0
+                    else round(sum(prediction_state.predictions_weights))
+                )
                 prediction_placeholder.markdown(
                     f"{translate('Gaining points', 'Neue Punkte')}: {prediction_weight}"
                 )
@@ -132,10 +141,26 @@ def render_quiz_hand_signs():
                     prediction_state.set_prediction_strength(-1)
                     succes_msg = st.empty()
                     score_msg = st.empty()
-                    succes_msg.success(config.labels_dict[int(st.session_state.correct_class)] + translate(f" is correct!, You gained {prediction_weight} extra points!", " ist korrekt!, Du hast gewonnen") + f" {prediction_weight} Punkte!")
-                    score_msg.markdown(f"#### {translate('Current Score', 'Aktueller Punktestand')}:  {st.session_state.points}")
-                    st.session_state.correct_class_index = (st.session_state.correct_class_index + random.randint(1, len(quiz_classes)-1)) % len(quiz_classes)
-                    st.session_state.correct_class = quiz_classes[st.session_state.correct_class_index]
+                    succes_msg.success(
+                        config.labels_dict[int(st.session_state.correct_class)]
+                        + translate(
+                            f" is correct!, You gained {prediction_weight} "
+                            f"extra points!",
+                            " ist korrekt!, Du hast gewonnen",
+                        )
+                        + f" {prediction_weight} Punkte!"
+                    )
+                    score_msg.markdown(
+                        f"#### {translate('Current Score', 'Aktueller Punktestand')}: "
+                        f"{st.session_state.points}"
+                    )
+                    st.session_state.correct_class_index = (
+                        st.session_state.correct_class_index
+                        + random.randint(1, len(quiz_classes) - 1)
+                    ) % len(quiz_classes)
+                    st.session_state.correct_class = quiz_classes[
+                        st.session_state.correct_class_index
+                    ]
                     time.sleep(2)
                     succes_msg.empty()
                     st.rerun()
@@ -143,9 +168,9 @@ def render_quiz_hand_signs():
         else:
             prediction_placeholder.markdown(
                 translate(
-                    "### Press START to turn on the camera", 
-                    "### Drücke START, um die Kamera einzuschalten"
-                    )
+                    "### Press START to turn on the camera",
+                    "### Drücke START, um die Kamera einzuschalten",
+                )
             )
 
         highscores()

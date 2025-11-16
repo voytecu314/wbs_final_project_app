@@ -20,7 +20,7 @@ def create_frame_callback(config, prediction_state, correct_class):
         expected_class_id = int(correct_class)
     except ValueError:
         print(f"ERROR: Invalid correct_class ID: {correct_class}")
-        expected_class_id = -1 # Setze auf ungültige ID
+        expected_class_id = -1  # Setze auf ungültige ID
 
     def callback(frame: av.VideoFrame) -> av.VideoFrame:
         """
@@ -55,7 +55,7 @@ def create_frame_callback(config, prediction_state, correct_class):
 
             # 2. Iteriere über die Hände (bis zu 2)
             for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
-                if hand_idx >= 2: # Max. 2 Hände verwenden
+                if hand_idx >= 2:  # Max. 2 Hände verwenden
                     break
 
                 # Sammle normalisierte Daten für die aktuelle Hand
@@ -63,8 +63,9 @@ def create_frame_callback(config, prediction_state, correct_class):
                     # Normalisierung relativ zum Frame (oder zum Min-Punkt aller Hände)
                     data_aux.append(lm.x - x_min_global)
                     data_aux.append(lm.y - y_min_global)
-                    
-                    # Fülle x_ und y_ nur für die erste Hand (hand_idx == 0) für die Textposition
+
+                    # Fülle x_ und y_ nur für die erste Hand (hand_idx == 0)
+                    # für die Textposition
                     if hand_idx == 0:
                         x_.append(lm.x)
                         y_.append(lm.y)
@@ -73,13 +74,16 @@ def create_frame_callback(config, prediction_state, correct_class):
             if len(data_aux) < config.EXPECTED_LENGTH:
                 # Füge 0en für die fehlende zweite Hand hinzu
                 data_aux += [0.0] * (config.EXPECTED_LENGTH - len(data_aux))
-            
-            # 4. Trunkierung (Sicherheitsmechanismus, sollte nicht nötig sein bei max_num_hands=2)
+
+            # 4. Trunkierung (Sicherheitsmechanismus, sollte nicht nötig sein
+            # bei max_num_hands=2)
             elif len(data_aux) > config.EXPECTED_LENGTH:
                 data_aux = data_aux[: config.EXPECTED_LENGTH]
 
             # Only run prediction every N frames
-            if prediction_state.should_predict(skip_frames=10): # <--- WIEDER EINGEFÜGT!
+            if prediction_state.should_predict(
+                skip_frames=10
+            ):  # <--- WIEDER EINGEFÜGT!
                 try:
                     # Make prediction with probability
                     prediction = config.model.predict([np.asarray(data_aux)])
@@ -92,11 +96,17 @@ def create_frame_callback(config, prediction_state, correct_class):
 
                     # --- ZENTRALE KORREKTUR FÜR DGS-CHALLENGE (Unverändert) ---
                     if confidence >= 0.3 and predicted_class == expected_class_id:
-                        predicted_character = (f"{config.labels_dict[predicted_class]} ✅ ({confidence:.2f})")
+                        predicted_character = (
+                            f"{config.labels_dict[predicted_class]} ✅ "
+                            f"({confidence:.2f})"
+                        )
                         prediction_state.set_prediction(predicted_character)
                         prediction_state.increase_prediction_strength(confidence)
                     elif confidence >= 0.3:
-                        predicted_character = (f"{config.labels_dict[predicted_class]} ❌ ({confidence:.2f})")
+                        predicted_character = (
+                            f"{config.labels_dict[predicted_class]} ❌ "
+                            and f"({confidence:.2f})"
+                        )
                         prediction_state.set_prediction(predicted_character)
                         prediction_state.decrease_prediction_strength()
                     else:
@@ -146,7 +156,7 @@ def create_frame_callback(config, prediction_state, correct_class):
         else:
             # No hand detected
             prediction_state.set_prediction("No hand detected")
-            prediction_state.decrease_prediction_strength() # Stärke senken
+            prediction_state.decrease_prediction_strength()  # Stärke senken
 
         # Convert back to BGR for encoding/display
         out_bgr = cv2.cvtColor(img_rgb_draw, cv2.COLOR_RGB2BGR)

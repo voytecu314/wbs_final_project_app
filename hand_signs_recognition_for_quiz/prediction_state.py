@@ -9,7 +9,7 @@ class PredictionState:
         self.prediction = "No hand detected"
         self.prediction_strength = 0.0
         self.predictions_weights = []
-        self.previous_landmarks = 84 * [0.0] # hardcoded config.EXPECTED_LENGTH
+        self.previous_landmarks = 84 * [0.0]  # hardcoded config.EXPECTED_LENGTH
         self.last_prediction_time = 0
         self.frame_count = 0
 
@@ -29,19 +29,19 @@ class PredictionState:
             if value < 0:
                 self.prediction_strength = 0
                 self.predictions_weights = []
-            elif 0 <= value <= .1:
-                new_strength = self.prediction_strength - .05
+            elif 0 <= value <= 0.1:
+                new_strength = self.prediction_strength - 0.05
                 if new_strength < 0:
                     self.prediction_strength = 0
                 else:
                     self.prediction_strength = new_strength
             else:
-                if 0 <= self.prediction_strength < .3:
-                    new_strength = self.prediction_strength + .02
-                elif .3 <= self.prediction_strength < .6:
-                    new_strength = self.prediction_strength + .05
+                if 0 <= self.prediction_strength < 0.3:
+                    new_strength = self.prediction_strength + 0.02
+                elif 0.3 <= self.prediction_strength < 0.6:
+                    new_strength = self.prediction_strength + 0.05
                 else:
-                    new_strength = self.prediction_strength + .1
+                    new_strength = self.prediction_strength + 0.1
                 if new_strength > 1:
                     self.prediction_strength = 1
                 else:

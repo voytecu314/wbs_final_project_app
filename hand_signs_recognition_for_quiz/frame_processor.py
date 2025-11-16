@@ -86,16 +86,14 @@ def create_frame_callback(config, prediction_state, correct_class):
                         prediction_proba = config.model.predict_proba(
                             [np.asarray(data_aux)]
                         )
-                        correct_class_prob = prediction_proba[0][list(config.model.classes_).index(correct_class)]
+                        correct_class_prob = prediction_proba[0][
+                            list(config.model.classes_).index(correct_class)
+                        ]
 
                         if correct_class_prob > 0.1:
                             predicted_word = "Good.."
-                            # predicted_word = (
-                            #     f"{config.labels_dict[int(correct_class)]} ({correct_class_prob:.2f})"
-                            # )
                             prediction_state.set_prediction_strength(correct_class_prob)
                         else:
-                            #prediction_state.set_prediction_strength(correct_class_prob)
                             predicted_word = "Adjust your hands"
 
                         prediction_state.set_prediction(predicted_word)
