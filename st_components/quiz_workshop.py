@@ -1,15 +1,45 @@
 import time
-
+import random
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 
 # KORREKTUR: Import der umbenannten Datei mit korrekter Signatur
 from hand_signs_recognition_for_quiz.frame_processor_quiz import create_frame_callback
 from hand_signs_recognition_for_quiz.mediapipe_config import MediaPipeConfig
-from hand_signs_recognition_for_quiz.prediction_state import PredictionState
+from hand_signs_recognition_for_quiz.prediction_state_quiz import PredictionStateQuiz
+
+# --- 1. GRUNDDATEN FÜR DAS QUIZ ---
+quiz_classes = [
+    "20",  # ANREISSNADEL
+    "24",  # FEILE
+    "15",  # KÖRNER
+    "28",  # SPIRALBOHRER
+    "22",  # BOHRMASCHINE
+    "26",  # MESSCHIEBER
+    "14",  # SCHRAUBENSCHLÜSSEL
+    "11",  # SCHRAUBEN
+    "12",  # SCHWEISSAUTOMAT
+    "25",  # MAULSCHLÜSSEL
+    "13",  # SICHERHEIT
+]
+
+# Bildnamen für die externe URL (fachgebaerdenlexikon.de/fileadmin/_migrated/pics/PIC_NAME.jpg)
+# WICHTIG: Diese werden jetzt in render_dgs_challenge_ui verwendet.
+pics_names = [
+    "Anreissnadel2",        # 20 - ANREISSNADEL
+    "056feile",             # 24 - FEILE
+    "koernerset1",          # 15 - KÖRNER
+    "217spiralbohrer",      # 28 - SPIRALBOHRER 
+    "Bohrmaschine2",        # 22 - BOHRMASCHINE
+    "Messschieber1",        # 26 - MESSCHIEBER
+    "177ringschluessel",    # 14 - SCHRAUBENSCHLÜSSEL
+    "204schrauben",         # 11 - SCHRAUBEN
+    "schwei_automat",       # 12 - SCHWEISSAUTOMAT
+    "Maulschluessel1",      # 25 - MAULSCHLÜSSEL
+    "208schutzbrille",      # 13 - SICHERHEIT 
+]
 
 # --- 2. HILFSFUNKTIONEN UND KONSTANTEN ---
-
 
 def toggle_language():
     """Schaltet die Sprache im Session State um."""
@@ -67,6 +97,7 @@ LF_NAMES = {
 
 def get_image_url(keyword):
     """Gibt den lokalen Dateipfad für das situationsgerechte Bild zurück."""
+    # Diese Funktion wird NUR für die MC-Fragen verwendet.
     urls = {
         "ANREISSNADEL": "images/anreissnadel.jpeg",
         "FEILE": "images/feile.jpeg",
@@ -84,16 +115,20 @@ def get_image_url(keyword):
 
 
 def init_quiz_state(username="Azubi"):
-    """Initialisiert den Zustand des Quiz (Punkte, Index) und der DGS-Erkennung."""
+    """
+    KORRIGIERT: Initialisiert den Zustand des Quiz (Punkte, Index) und der 
+    DGS-Erkennung. Stellt sicher, dass prediction_state immer vorhanden ist.
+    """
     if "quiz_index" not in st.session_state:
         st.session_state.quiz_index = 0
+    # WICHTIG: Initialisierung des PredictionState zur Vermeidung von AttributeError
     if "prediction_state" not in st.session_state:
-        st.session_state.prediction_state = PredictionState()
+        st.session_state.prediction_state = PredictionStateQuiz()
     if "dgs_challenge_passed" not in st.session_state:
         st.session_state.dgs_challenge_passed = False
     if (
         "mc_result" not in st.session_state
-    ):  # ZUSTAND der letzten MC-Frage (CORRECT/INCORRECT)
+    ):
         st.session_state.mc_result = None
     if "quiz_xp" not in st.session_state:
         st.session_state.quiz_xp = 0
@@ -130,7 +165,7 @@ def update_stats(lf_num, points_gained, error=False):
         )
 
 
-# --- KORRIGIERTER check_answer BLOCK ---
+# --- check_answer BLOCK ---
 def check_answer(
     question_type,
     user_input,
@@ -163,8 +198,8 @@ def check_answer(
                 f"**{expected_answer}** gewesen."
             )
 
-        # NEU: Index muss um 1 erhöht werden, um zum DGS-Block zu springen
-        st.session_state.quiz_index += 1  # <-- WICHTIGE ZEILE HINZUGEFÜGT
+        # Index muss um 1 erhöht werden, um zum DGS-Block zu springen
+        st.session_state.quiz_index += 1 
 
         st.session_state.dgs_challenge_passed = False
         time.sleep(1)
@@ -196,12 +231,7 @@ def check_answer(
             time.sleep(1)
             st.rerun()
 
-
-# --- ENDE KORRIGIERTER check_answer BLOCK ---
-
-# --- 3. QUIZ DATENSTRUKTUR (24 BLÖCKE / 120 XP pro LF) ---
-
-# 24 Blöcke (12 MC + 12 DGS)
+# --- 3. QUIZ DATENSTRUKTUR ---
 
 QUIZ_DATA = [
     # --- LF 1: Bauelemente mit handgeführten Werkzeugen fertigen (120 CP) ---
@@ -572,30 +602,32 @@ QUIZ_DATA = standardize_dgs_questions(QUIZ_DATA)
 # *******************************************************************
 
 
-# --- 4. DGS CHALLENGE MODUL (KORRIGIERT) ---
-
+# --- 4. DGS CHALLENGE MODUL (RÜCKKEHR ZUR BLOCKIERENDEN SCHLEIFE) ---
 
 def render_dgs_challenge_ui(expected_gebärde, current_lf):
     """
-    Rendert die Kamera-UI und die Klassifizierung, wenn der Fragetyp C_DGS ist.
+    Rendert die Kamera-UI und die Klassifizierung.
+    Nutzt die blockierende Schleife der älteren, funktionierenden Version.
     """
     prediction_state = st.session_state.prediction_state
-
-    # Angepasster Hinweis basierend auf der Richtigkeit der MC-Frage
+    
+    # 1. Status-Meldungen basierend auf MC-Frage (beibehalten von der neuen Logik)
     if st.session_state.mc_result == "CORRECT":
         st.warning(
-            "🤟 Zeige die Gebärde, um den Block abzuschließen und weiterzukommen!"
+            "🤟 Richtig! Zeige die Gebärde **zur Bestätigung**, um den Block abzuschließen und weiterzukommen!"
+        )
+    elif st.session_state.mc_result == "INCORRECT":
+        st.error(
+            "⚠️ Korrekturübung: Du hattest die MC-Frage falsch. Zeige jetzt die Gebärde **zur Festigung**."
         )
     else:
-        st.error(
-            "⚠️ Korrekturübung: Du hattest die MC-Frage falsch. \n"
-            "Zeige jetzt die Gebärde zur Festigung."
-        )
+        st.info("Zeige die Gebärde, um die Challenge zu starten.") 
 
     st.info(f"Ziel-Gebärde: **{expected_gebärde}**")
 
     quiz_container, cam_webrtc = st.columns([1, 1], vertical_alignment="top")
 
+    # Klasse (ID) für die Erkennung abrufen
     correct_class_id = QUIZ_DGS_CLASSES.get(expected_gebärde)
 
     if correct_class_id is None:
@@ -605,7 +637,7 @@ def render_dgs_challenge_ui(expected_gebärde, current_lf):
         )
         return
 
-    # Korrekter Aufruf mit DREI Argumenten
+    # Erzeuge Callback (mit der neuesten Frame-Processor-Logik)
     callback = create_frame_callback(config, prediction_state, correct_class_id)
 
     # VORSCHLAG FÜR NEUE CONSTRAINTS ZUR AUFLÖSUNGSSENKUNG
@@ -617,84 +649,200 @@ def render_dgs_challenge_ui(expected_gebärde, current_lf):
         "audio": False,
     }
 
-    # WebRTC Streamer
+    # WebRTC Streamer (Key ist wieder dynamisch, wie zuletzt vorgeschlagen)
     with cam_webrtc:
+        dynamic_key = f"quiz_dgs_challenge_{st.session_state.quiz_index}"
         webrtc_ctx = webrtc_streamer(
-            key="quiz_dgs_challenge",
+            key=dynamic_key,
             mode=WebRtcMode.SENDRECV,
             video_frame_callback=callback,
-            media_stream_constraints=video_constraints,  # Angepasste Constraints
+            media_stream_constraints=video_constraints,
             async_processing=True,
         )
 
     with quiz_container:
-        image_url = get_image_url(expected_gebärde)
-        st.image(
-            image_url,
-            caption=None,
-            use_container_width=True,
-        )
-
+        # Externes Bild verwenden (Logik der stabilen Version beibehalten)
+        try:
+            # pics_names ist in der XP-Version definiert
+            geb_index = list(QUIZ_DGS_CLASSES.keys()).index(expected_gebärde)
+            pic_name = pics_names[geb_index]
+            image_url = f"https://fachgebaerdenlexikon.de/fileadmin/_migrated/pics/{pic_name}.jpg"
+            st.image(
+                image_url,
+                caption=None,
+                width='stretch',
+            )
+        except Exception:
+            st.error("Fehler: Bildname für Gebärde nicht gefunden.")
+        
         prediction_placeholder = st.empty()
         progress = st.empty()
         progress.progress(0)
+    
+    # ⚠️ WIEDEREINFÜHRUNG DER BLOCKIERENDEN SCHLEIFE ⚠️
+    # Diese Logik basiert auf Ihrer funktionierenden alten Version
+    if webrtc_ctx and webrtc_ctx.state.playing and not st.session_state.dgs_challenge_passed:
+        
+        while (
+            webrtc_ctx.state.playing
+            and not st.session_state.dgs_challenge_passed
+        ):
+            # 1. Live-Fortschritt anzeigen (wird bei jedem Schleifendurchlauf aktualisiert)
+            current_strength = prediction_state.get_prediction_strength()
+            bar_percent = current_strength if 0.05 < current_strength <= 1 else 0
+            progress.progress(bar_percent)
+            prediction_placeholder.markdown(
+                f"**Fortschritt der Erkennung:** {int(bar_percent * 100)}%"
+            )
+            
+            # 2. Prüfen, ob die Erkennung erfolgreich war
+            if current_strength >= 1:
+                prediction_state.set_prediction_strength(-1) # Reset
+                st.session_state.dgs_challenge_passed = True
+                time.sleep(1) # Kurze Pause, bevor UI neu startet
+                st.rerun() # Trigger das UI, um die Buttons anzuzeigen
 
-        # Update display while streaming
-        if webrtc_ctx.state.playing and not st.session_state.dgs_challenge_passed:
-            while (
-                webrtc_ctx.state.playing and not st.session_state.dgs_challenge_passed
-            ):
-                current_strength = prediction_state.get_prediction_strength()
+            # WICHTIG: Die Pause, die den Streamlit-Hauptthread blockiert, 
+            # aber den WebRTC-Stream am Laufen hält
+            time.sleep(0.5)
 
-                bar_percent = current_strength if 0.05 < current_strength <= 1 else 0
-                progress.progress(bar_percent)
-                prediction_placeholder.markdown(
-                    f"**Erkennung läuft:** {int(bar_percent * 100)}%"
-                )
-
-                # Erfolgreiche Erkennung
-                if current_strength >= 1:
-                    prediction_state.set_prediction_strength(-1)  # Reset
-                    st.session_state.dgs_challenge_passed = True
-                    time.sleep(1)
-                    st.rerun()
-
-                # WICHTIG: DIESEN WERT AUF 2.0 ERHÖHEN, um CPU/GPU zu entlasten
-                time.sleep(2.0)
-
-    # --- NEUE, BESSERE PLATZIERUNG DER BUTTONS (UNTERHALB DER SPALTEN) ---
+    # --- BUTTONS ---
     st.divider()
     col1, col2, _ = st.columns([1, 1, 3])
 
     with col1:
-        # Funktionalität: Springt zum Ende des Quiz
         if st.button("🚫 Challenge beenden (Quiz abbrechen)", type="secondary"):
             st.session_state.quiz_index = len(QUIZ_DATA)
             st.rerun()
 
     with col2:
         if st.button("⏩ Gebärde überspringen (0 Punkte)", type="secondary"):
-            st.session_state.quiz_index += 1
-
-            # NEU: Zustand für die nächste MC-Frage zurücksetzen!
-            st.session_state.mc_result = None
-            st.session_state.dgs_challenge_passed = False
-
-            st.info("Challenge übersprungen. 0 Punkte.")
-            time.sleep(0.5)
-            st.rerun()
-
-    # --- ENDE BUTTONS ---
+            # Ruft check_answer auf, um den Index zu erhöhen und den Zustand zurückzusetzen
+            check_answer("C_DGS", None, None, current_lf, expected_gebärde, dgs_passed=True)
 
     if st.session_state.dgs_challenge_passed:
         st.success("✅ Challenge bestanden! Weiter zur nächsten Frage.")
         if st.button("Nächste Frage", type="primary"):
             # Ruft check_answer auf, um den Score zu erhöhen und den Index zu erhöhen.
-            check_answer("C_DGS", None, None, dgs_passed=True)
+            check_answer("C_DGS", None, None, current_lf, expected_gebärde, dgs_passed=True)
 
 
-# --- 5. HAUPTFUNKTION ZUR WIEDERGABE (KORRIGIERT) ---
+# --- 5. HAUPTFUNKTION ZUR WIEDERGABE (Keine Änderungen, nur zur Vollständigkeit) ---
 
+def render_quiz_simulation():
+    """Rendert die aktuelle Quiz-Frage in Streamlit (MC oder DGS-Challenge)."""
+    
+    # --- Login-Logik ---
+    if "username" not in st.session_state or st.session_state.username == "Azubi":
+        st.title("Willkommen zum Werkstatt-Quiz! 👋")
+        st.markdown(
+            "Bitte gib deinen Namen ein, um deine Lern-Erfolge zu speichern \n"
+            "und mit XP zu sammeln."
+        )
+        user_input = st.text_input("Dein Name/Nickname:")
+        if st.button("Starten!", type="primary") and user_input:
+            init_quiz_state(user_input)
+            st.rerun()
+        return
+
+    # Initialisiere ALLE Zustände NACH erfolgreichem Login
+    # (Diese Funktion MUSS aus der XP-Logik stammen!)
+    init_quiz_state(st.session_state.username) 
+
+    current_index = st.session_state.quiz_index
+
+    # --- Sprachwechsel-Button (wird angenommen, dass er existiert) ---
+    _, col_lang_button = st.columns([10, 1])
+    with col_lang_button:
+        # toggle_language muss in Ihrer Datei existieren
+        if "language" not in st.session_state: st.session_state.language = "German"
+        current_lang = st.session_state.language
+        button_label = "🇬🇧" if current_lang == "German" else "🇩🇪"
+        button_tooltip = "Switch to English" if current_lang == "German" else "Zurück zu Deutsch"
+        st.button(
+            button_label,
+            on_click=toggle_language,
+            help=button_tooltip,
+            key="language_toggle_button",
+        )
+
+    # --- Ende des Quiz ---
+    if current_index >= len(QUIZ_DATA): # QUIZ_DATA muss in Ihrer Datei existieren
+        st.balloons()
+        st.success(
+            f"🥳 **Glückwunsch, {st.session_state.username}!** \n"
+            f"Du hast alle Fragen beantwortet."
+        )
+        st.markdown(f"**Gesamt-XP: {st.session_state.quiz_xp}**")
+        st.button(
+            "Quiz neu starten", on_click=lambda: st.session_state.clear() or st.rerun()
+        )
+        return
+
+    current_q = QUIZ_DATA[current_index]
+
+    # --- Header und Fortschritt ---
+    lf_num = current_q["lf"]
+    # LF_NAMES muss in Ihrer Datei existieren
+    lf_name = LF_NAMES.get(lf_num, "Unbekanntes Lernfeld") 
+
+    lf_total_steps = len([q for q in QUIZ_DATA if q["lf"] == lf_num])
+    lf_start_index = next((i for i, q in enumerate(QUIZ_DATA) if q["lf"] == lf_num), 0)
+    lf_current_step = current_index - lf_start_index + 1
+
+    st.title(f"🕹️ Werkstatt-Simulation: Lernfeld {lf_num} -- {lf_name}")
+    st.subheader(f"Schritt {lf_current_step} von {lf_total_steps} in LF {lf_num}")
+    st.markdown(
+        f"**Aktuelle XP: {st.session_state.quiz_xp}** \n"
+        f"(Hallo, **{st.session_state.username}**)"
+    )
+    st.divider()
+
+    # --- Fragen-Logik ---
+    st.markdown(f"### {current_q['scenario']}")
+
+    # Bildanzeige für MC-Fragen
+    if current_q["type"] in ["A_TOOL", "B_HANDLUNG"]:
+        # get_image_url muss in Ihrer Datei existieren
+        st.image(
+            get_image_url(current_q["gebärde_thema"]),
+            caption=None,
+            width='stretch',
+        )
+
+    st.markdown(f"### {current_q['question']}")
+
+    # MC-Fragen-Handling
+    if current_q["type"] in ["A_TOOL", "B_HANDLUNG"]:
+        if not st.session_state.mc_result: 
+            options = current_q["options"]
+            correct_answer = current_q["answer"]
+
+            with st.container():
+                user_choice = st.radio(
+                    "Wähle die richtige Antwort:",
+                    options,
+                    key=f"mc_options_{current_index}",
+                )
+
+                if st.button(
+                    "Antwort prüfen", key=f"check_{current_index}", type="primary"
+                ):
+                    # check_answer muss in Ihrer Datei existieren
+                    check_answer(
+                        current_q["type"],
+                        user_choice,
+                        correct_answer,
+                        current_q["lf"], # Übergabe des Lernfelds für XP
+                        current_q["gebärde_thema"],
+                    )
+
+    # DGS-Challenge-Handling
+    elif current_q["type"] == "C_DGS":
+        render_dgs_challenge_ui(current_q["expected_gebärde"], current_q["lf"])
+
+
+# --- 5. HAUPTFUNKTION ZUR WIEDERGABE (KORRIGIERT FÜR INITIALISIERUNG) ---
 
 def render_quiz_simulation():
     """Rendert die aktuelle Quiz-Frage in Streamlit (MC oder DGS-Challenge)."""
@@ -712,7 +860,9 @@ def render_quiz_simulation():
             st.rerun()
         return
 
-    init_quiz_state(st.session_state.username)  # Lade den gespeicherten Namen
+    # WICHTIGE KORREKTUR: Initialisiere ALLE Zustände NACH erfolgreichem Login!
+    # Dies verhindert den AttributeError: "prediction_state"
+    init_quiz_state(st.session_state.username) 
 
     current_index = st.session_state.quiz_index
 
@@ -728,11 +878,9 @@ def render_quiz_simulation():
 
         # Text auf dem Button: Nur Flagge
         if current_lang == "German":
-            # Wenn Deutsch aktiv ist, zeige die Flagge für die Zielsprache (Englisch)
             button_label = "🇬🇧"
             button_tooltip = "Switch to English"
         else:
-            # Wenn Englisch aktiv ist, zeige die Flagge für die Zielsprache (Deutsch)
             button_label = "🇩🇪"
             button_tooltip = "Zurück zu Deutsch"
 
@@ -772,7 +920,7 @@ def render_quiz_simulation():
 
     st.subheader(f"Schritt {lf_current_step} von {lf_total_steps} in LF {lf_num}")
     st.markdown(
-        f"**Aktuelle XP: {st.session_state.quiz_xp}**  \n"
+        f"**Aktuelle XP: {st.session_state.quiz_xp}** \n"
         f"(Hallo, **{st.session_state.username}**)"
     )
 
@@ -781,27 +929,23 @@ def render_quiz_simulation():
     # --- Szenario und Bild ---
     st.markdown(f"### {current_q['scenario']}")
 
-    # Korrektur der Bildanzeige: use_column_width durch use_container_width ersetzen
-    if current_q["type"] in ["A_TOOL", "B_HANDLUNG"] or (
-        current_q["type"] == "C_DGS" and st.session_state.mc_result
-    ):
+    # Bildanzeige für MC-Fragen
+    if current_q["type"] in ["A_TOOL", "B_HANDLUNG"]:
         st.image(
             get_image_url(current_q["gebärde_thema"]),
             caption=None,
-            use_container_width=True,  # Korrektur
+            width='stretch',
         )
 
     # --- Darstellung basierend auf Fragentyp ---
     st.markdown(f"### {current_q['question']}")
 
-    # HIER IST DIE WICHTIGE ANPASSUNG: Rendere MC-Elemente NUR, WENN NOCH KEINE ANTWORT
-    # VERARBEITET WURDE.
+    # Rendere MC-Elemente NUR, WENN NOCH KEINE ANTWORT VERARBEITET WURDE.
     if current_q["type"] in ["A_TOOL", "B_HANDLUNG"]:
-        if not st.session_state.mc_result:  # <<-- KRITISCHE BEDINGUNG
+        if not st.session_state.mc_result: 
             options = current_q["options"]
             correct_answer = current_q["answer"]
 
-            # Placeholder wird hier nur zum Umschließen der Elemente verwendet
             with st.container():
                 user_choice = st.radio(
                     "Wähle die richtige Antwort:",
@@ -821,7 +965,5 @@ def render_quiz_simulation():
                     )
 
     elif current_q["type"] == "C_DGS":
-        # KORREKTUR: DGS-Challenge IMMER rendern, wenn der Index darauf zeigt.
-        # Die Buttons sind HIER. Die Warnmeldungen in render_dgs_challenge_ui
-        # kümmern sich um den Zustand (MC_RESULT).
+        # Ruft die stabilisierte DGS-Challenge-UI auf
         render_dgs_challenge_ui(current_q["expected_gebärde"], current_q["lf"])
