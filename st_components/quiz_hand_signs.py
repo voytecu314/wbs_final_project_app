@@ -33,38 +33,32 @@ def render_quiz_hand_signs():
             </style>
         """)
 
-    @st.dialog("Provide your nickname")
-    def register_nickname():
-        nickname = st.text_input("Type your nickname here:")
-        language = st.selectbox("Select your spoken language:", ["English", "German"])
-        if st.button("Submit"):
-            if nickname.strip() == "":
-                st.warning("Nickname cannot be empty.")
-                return
-            else:
-                st.session_state.nickname = nickname
-                st.session_state.language = language
-                st.rerun()
-
     if "nickname" not in st.session_state:
+        @st.dialog("Provide your nickname")
+        def register_nickname():
+            nickname = st.text_input("Type your nickname here:")
+            #language = st.selectbox("Select your spoken language:", ["English", "German"])
+            if st.button("Submit"):
+                if nickname.strip() == "":
+                    st.warning("Nickname cannot be empty.")
+                    return
+                else:
+                    st.session_state.nickname = nickname
+                    #st.session_state.language = language
+                    st.rerun()
+                    
         register_nickname()
 
     else:
-
         # Header
-        st.markdown(
-            f"Hello, **{st.session_state.nickname}**! Welcome to the Hand Signs Quiz."
-            if 
-            st.session_state.language == "English"
-            else 
-            f"Hallo, **{st.session_state.nickname}**! Willkommen zum Handzeichen-Quiz."
+        st.markdown(translate(
+            f"Hello, **{st.session_state.nickname}**! Welcome to the Hand Signs Quiz.",
+            f"Hallo, **{st.session_state.nickname}**! Willkommen zum Handzeichen-Quiz.")
         )
-        st.title(
-            "Use hand signs for this quiz."
-            if 
-            st.session_state.language == "English"
-            else
-            "Verwende Handzeichen für dieses Quiz."
+        
+        st.title(translate(
+            "Use hand signs for this quiz.",
+            "Verwende Handzeichen für dieses Quiz.")
             )
 
         # Load MediaPipe config and model (cached)
