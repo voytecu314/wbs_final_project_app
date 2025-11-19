@@ -35,13 +35,13 @@ def render_quiz_hand_signs():
         """)
 
     if "username" not in st.session_state:
-        @st.dialog("Provide your username")
+        @st.dialog(translate("Provide your username","Geben Sie Ihren Benutzernamen ein"))
         def register_username():
-            username = st.text_input("Type your username here:")
+            username = st.text_input(translate("Type your username here:","Geben Sie hier Ihren Benutzernamen ein:"))
             #language = st.selectbox("Select your spoken language:", ["English", "German"])
-            if st.button("Submit"):
+            if st.button(translate("Submit","Absenden")):
                 if username.strip() == "":
-                    st.warning("Nickname cannot be empty.")
+                    st.warning(translate("Nickname cannot be empty.","Der Spitzname darf nicht leer sein."))
                     return
                 else:
                     st.session_state.username = username
