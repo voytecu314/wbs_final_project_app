@@ -13,13 +13,13 @@ from utils import translate
 # ==========================================
 def render_quiz_tools():
     if "username" not in st.session_state:
-        @st.dialog("Provide your username")
+        @st.dialog(translate("Provide your username","Geben Sie Ihren Benutzernamen ein"))
         def register_username():
-            username = st.text_input("Type your username here:")
+            username = st.text_input(translate("Type your username here:","Geben Sie hier Ihren Benutzernamen ein:"))
             #language = st.selectbox("Select your spoken language:", ["English", "German"])
-            if st.button("Submit"):
+            if st.button(translate("Submit","Absenden")):
                 if username.strip() == "":
-                    st.warning("Nickname cannot be empty.")
+                    st.warning(translate("Nickname cannot be empty.","Der Spitzname darf nicht leer sein."))
                     return
                 else:
                     st.session_state.username = username
@@ -31,8 +31,8 @@ def render_quiz_tools():
     else:    
         st.title(translate("Metal Technic Quiz", "Metalltechnik – Quizmodul"))
         st.markdown(
-            "Testen Sie Ihr Wissen mit automatisch generierten Fragen "
-            "basierend auf Ihren RAG-Dokumenten."
+            translate("Test your knowledge with automatically generated questions","Testen Sie Ihr Wissen mit automatisch generierten Fragen")
+            + translate("based on your RAG documents.","basierend auf Ihren RAG-Dokumenten.")
         )
 
         # --------------------------------------
@@ -91,15 +91,17 @@ def render_quiz_tools():
                     COOLDOWN_SECONDS - (time.time() - st.session_state.last_generation_time)
                 )
                 st.warning(
-                    f"Bitte warten Sie {remaining} Sekunden, "
-                    f"bevor eine neue Frage generiert wird."
+                    translate(f"Please wait {remaining} seconds,",f"Bitte warten Sie {remaining} Sekunden,")
+                    +translate("before a new question is generated.","bevor eine neue Frage generiert wird.")
                 )
                 return None, None, None
 
             # 3) Build prompt
             prompt = f"""
             You are a quiz generator for German metalworking (Metalltechnik).
-            Create ONE multiple-choice question of difficulty {difficulty}
+            Create ONE multiple-choice question in
+            {"English" if st.session_state.get("language_toggle", False) else "German"}
+            language of difficulty {difficulty}
             on the topic "{topic}".
             Provide exactly 4 options labeled A) B) C) D).
             End your answer with: Correct: <letter>.
@@ -111,15 +113,15 @@ def render_quiz_tools():
                 response = rag_bot.chat(prompt)
                 text = str(response).strip()
             except Exception:
-                st.error("RAG nicht verfügbar – Fallback-Frage wird verwendet.")
+                st.error(translate("RAG not available – fallback question is used.","RAG nicht verfügbar – Fallback-Frage wird verwendet."))
                 fallback_q = (
-                    "Welche Schutzausrüstung ist beim Schleifen von Metall Pflicht?"
+                    translate("What protective equipment is mandatory when grinding metal?","Welche Schutzausrüstung ist beim Schleifen von Metall Pflicht?")
                 )
                 fallback_opts = [
-                    "A) Schutzbrille",
-                    "B) Arbeits-Sandalen",
-                    "C) Sonnenhut",
-                    "D) Kopfhörer",
+                    f'A) {translate("Safety goggles","Schutzbrille")}',
+                    f'B) {translate("Work sandals","Arbeits-Sandalen")}',
+                    f'C) {translate("Sun hat","Sonnenhut")}',
+                    f'D) {translate("Headphones","Kopfhörer")}',
                 ]
                 return fallback_q, fallback_opts, "A"
 
@@ -155,7 +157,7 @@ def render_quiz_tools():
             # Construct final question text
             question_text = (
                 " ".join(question_lines).strip()
-                or "Was ist eine Grundregel der Metalltechnik?"
+                or translate("What is a basic rule of metalworking?","Was ist eine Grundregel der Metalltechnik?")
             )
 
             # Ensure 4 options
@@ -180,20 +182,20 @@ def render_quiz_tools():
         # QUIZ UI
         # --------------------------------------
         topic = st.selectbox(
-            "Thema auswählen:",
+            translate("Select topic:","Thema auswählen:"),
             [
-                "Werkzeuge",
-                "Sicherheit",
-                "Maschinen",
-                "Schweißen",
-                "Feilen",
-                "Drehen",
-                "Metallarten",
+                translate("Tools","Werkzeuge"),
+                translate("Safety","Sicherheit"),
+                translate("Machines","Maschinen"),
+                translate("Welding","Schweißen"),
+                translate("Filing","Feilen"),
+                translate("Turning","Drehen"),
+                translate("Types of metal","Metallarten"),
             ],
         )
 
         # Generate Question Button
-        if st.button("Frage generieren"):
+        if st.button(translate("Generate question","Frage generieren")):
             q, opts, corr = generate_quiz_question(topic, st.session_state.difficulty)
             if q:
                 st.session_state.current_question = q
@@ -205,20 +207,20 @@ def render_quiz_tools():
         # Display Active Question
         # ------------------------------
         if st.session_state.current_question:
-            st.markdown("### Frage:")
+            st.markdown(translate('### Question',"### Frage:"))
             st.markdown(st.session_state.current_question)
 
             # FIX: ensure options are always list[str]
             options = st.session_state.current_options or []
 
             st.session_state.user_answer = st.radio(
-                "Antwort auswählen:",
+                translate("Choose an answer:","Antwort auswählen:"),
                 options,
                 key="quiz_answer_radio",
             )
 
             # Submit Button
-            if st.button("Antwort bestätigen"):
+            if st.button(translate("Confirm","Antwort bestätigen")):
                 if st.session_state.user_answer:
                     selected_letter = (
                         re.match(r"^([A-Da-d])", st.session_state.user_answer)
@@ -231,10 +233,10 @@ def render_quiz_tools():
                 is_correct = selected_letter == st.session_state.correct_letter
 
                 if is_correct:
-                    st.success("Richtig! +10 XP")
+                    st.success(translate("Correct!","Richtig!") +"10 XP")
                     st.session_state.xp += 10
                 else:
-                    st.error(f"Falsch. Richtige Antwort: {st.session_state.correct_letter}")
+                    st.error(f"{translate('Wrong, correct answer','Falsch. Richtige Antwort:')} {st.session_state.correct_letter}")
 
                 # --------------------------------------
                 # SAVE REAL QUIZ HISTORY ENTRY
@@ -259,7 +261,7 @@ def render_quiz_tools():
                     st.session_state.difficulty = "medium"
 
             # Next Question Button
-            if st.button("Nächste Frage"):
+            if st.button(translate("Next question","Nächste Frage")):
                 q, opts, corr = generate_quiz_question(topic, st.session_state.difficulty)
                 if q:
                     st.session_state.current_question = q
@@ -270,9 +272,9 @@ def render_quiz_tools():
         # --------------------------------------
         # XP BAR
         # --------------------------------------
-        st.markdown("### XP-Fortschritt")
+        st.markdown("### XP-"+translate("Progress","Fortschritt"))
         st.progress(st.session_state.xp / 100)
         st.info(
-            f"Level: {st.session_state.level} — XP: {st.session_state.xp} — Schwierigkeit: "
+            f"Level: {st.session_state.level} — XP: {st.session_state.xp} — {translate('Difficulty:','Schwierigkeit:')} "
             f"{st.session_state.difficulty}"
         )
