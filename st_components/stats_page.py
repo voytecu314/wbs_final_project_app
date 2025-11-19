@@ -1,11 +1,9 @@
-import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
+import pandas as pd
+import streamlit as st
 
 
 def render_stats_page():
-
     st.title("📊 Lernstatistik – Metalltechnik")
 
     # =============================================
@@ -32,8 +30,6 @@ def render_stats_page():
     total_questions = len(df)
     correct_answers = df["correct"].sum()
     accuracy = round((correct_answers / total_questions) * 100, 1)
-
-    avg_difficulty = df["difficulty"].mode()[0] if "difficulty" in df else "-"
 
     xp = st.session_state.get("xp", 0)
     level = st.session_state.get("level", 1)
@@ -77,7 +73,7 @@ def render_stats_page():
     ax2.plot(
         df_time["timestamp"],
         df_time["correct"].astype(int).rolling(5, min_periods=1).mean(),
-        marker="o"
+        marker="o",
     )
     ax2.set_ylabel("Gleitende Genauigkeit")
     ax2.set_ylim(0, 1)
@@ -106,7 +102,6 @@ def render_stats_page():
     st.subheader("💡 Persönliche Empfehlungen")
 
     if "topic" in df:
-
         topic_accuracy = dict(zip(topic_summary["topic"], topic_summary["accuracy"]))
         weakest_topic = min(topic_accuracy, key=topic_accuracy.get)
         weakest_value = topic_accuracy[weakest_topic]
@@ -123,9 +118,3 @@ Deine Genauigkeit hier liegt bei **{weakest_value}%**.
         st.info("Noch keine Empfehlungen möglich – keine Themenzuordnung vorhanden.")
 
     st.markdown("---")
-
-    # =============================================
-    # 7) Raw Data (optional)
-    # =============================================
-    #with st.expander("📄 Rohdaten anzeigen"):
-        #st.dataframe(df)

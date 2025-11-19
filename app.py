@@ -1,10 +1,10 @@
 import streamlit as st
 
-from st_components.learning_chat import render_learning_chat
 from st_components.home import render_home
+from st_components.learning_chat import render_learning_chat
 from st_components.quiz_hand_signs import render_quiz_hand_signs
 from st_components.quiz_tools import render_quiz_tools
-from st_components.martins_page import render_martins_page
+from st_components.quiz_workshop import render_quiz_simulation
 from st_components.stats_page import render_stats_page
 
 from utils import translate, british_flag, german_flag
@@ -2483,7 +2483,9 @@ div[data-testid="stCheckbox"]>label[data-baseweb="checkbox"]:nth-child(1)>div:fi
     background-size: cover;
 }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # --- Helper menu item button ---
 def button_effects(page_name):
@@ -2497,9 +2499,9 @@ st.sidebar.button(translate("Home","Startseite"), on_click=button_effects, args=
 st.sidebar.button(translate("Learn Chat","Mit Chat lernen"), on_click=button_effects, args=("Learn Chat",))
 # --- QUIZ SECTION ---
 quizes = ["Choose a quiz:",
-          translate("GSL Challange","DGS Herausforderung"),
+          translate("GSL Challange","DGS Training"),
           translate("RAG Quiz","RAG Quiz"),
-          translate("Martins page","Martins Seite")]
+          translate("Workshop Quiz","Werkstatt Quiz")]
 
 with st.sidebar.expander(
     translate("Challenges","Teste sich"),
@@ -2535,11 +2537,11 @@ if st.session_state.page == "Home":
     render_home()
 elif st.session_state.page == "Learn Chat":
     render_learning_chat()
-elif st.session_state.page == "Martins page" or st.session_state.page == "Martins Seite":
-    render_martins_page()
+elif st.session_state.page == "Workshop Quiz" or st.session_state.page == "Werkstatt Quiz":
+    render_quiz_simulation()
 elif st.session_state.page == "RAG Quiz":
     render_quiz_tools()
-elif st.session_state.page == "GSL Challange" or st.session_state.page == "DGS Herausforderung":
+elif st.session_state.page == "GSL Challange" or st.session_state.page == "DGS Training":
     render_quiz_hand_signs()
 elif st.session_state.page == "STATS":
     render_stats_page()

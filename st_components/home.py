@@ -137,14 +137,12 @@ def render_home():
     
     with col1:
         if st.button("💬 Chat", type="primary", use_container_width=True, key="chat_btn"):
-            st.session_state.clicks_chat += 1
             st.session_state.page = "Learn Chat"
             st.rerun()
     
     with col2:
         if st.button("🛠️ Werkstatt-Quiz", use_container_width=True, key="quiz_btn"):
-            st.session_state.clicks_quiz += 1
-            st.session_state.page = "Martins page"
+            st.session_state.page = "Workshop Quiz"
             st.rerun()
     
     # Footer

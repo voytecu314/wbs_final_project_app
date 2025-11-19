@@ -92,9 +92,7 @@ def create_frame_callback(config, prediction_state):
                     if confidence < 0.1:  # Adjust threshold (0.1 = 10% confidence)
                         predicted_character = "Unknown gesture"
                     elif predicted_class in config.labels_dict:
-                        predicted_character = (
-                            f"{config.labels_dict[predicted_class]}"# ({confidence:.2f})"
-                        )
+                        predicted_character = f"{config.labels_dict[predicted_class]}"
                     else:
                         predicted_character = f"Unknown class: {predicted_class}"
 

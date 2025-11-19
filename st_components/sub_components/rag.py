@@ -3,7 +3,7 @@ import streamlit as st
 from rag.chat_engine import create_chat_engine
 
 
-def render_rag_chat(prompt = None):
+def render_rag_chat(prompt=None):
     @st.cache_resource
     def init_bot():
         return create_chat_engine()

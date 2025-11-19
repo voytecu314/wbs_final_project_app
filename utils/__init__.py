@@ -1,5 +1,7 @@
 import streamlit as st
+
 # === Utility Functions ===
+
 
 def translate(english_text, german_text):
     """Simple translation function based on session state."""
