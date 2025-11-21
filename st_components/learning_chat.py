@@ -3,6 +3,7 @@ from collections import Counter
 
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
+from utils import translate
 
 from hand_signs_recognition_for_rag.frame_processor import create_frame_callback
 from hand_signs_recognition_for_rag.mediapipe_config import MediaPipeConfig
@@ -366,7 +367,7 @@ def render_learning_chat():
                         f"Detected Sign: **{st.session_state.stable_prediction or 'Waiting...'}**" # noqa: E501
                     )
                 )
-                st.markdown("### ❓ Ask a question about this sign:")
+                st.markdown(translate("## Ask the chatbot","## Den Chatbot fragen"))
                 for i in range(0, len(questions), 2):
                     cols = st.columns(2)
                     for idx, col in enumerate(cols):
