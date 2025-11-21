@@ -2,6 +2,7 @@ import time
 import random
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
+from utils import translate
 
 # KORREKTUR: Import der umbenannten Datei mit korrekter Signatur
 from hand_signs_recognition_for_quiz.frame_processor_quiz import create_frame_callback
@@ -41,25 +42,16 @@ pics_names = [
 
 # --- 2. HILFSFUNKTIONEN UND KONSTANTEN ---
 
-def toggle_language():
-    """Schaltet die Sprache im Session State um."""
-    if "language" not in st.session_state:
-        st.session_state.language = "German"  # Standard
-        return
+# def toggle_language():
+#     """Schaltet die Sprache im Session State um."""
+#     if "language" not in st.session_state:
+#         st.session_state.language = "German"  # Standard
+#         return
 
-    if st.session_state.language == "German":
-        st.session_state.language = "English"
-    else:
-        st.session_state.language = "German"
-
-
-def translate(english_text, german_text):
-    """Simple translation function based on session state."""
-    # Wenn 'language' nicht gesetzt ist oder 'German' ist, gib Deutsch zurück (Standard)
-    if st.session_state.get("language") == "German":
-        return german_text
-    # Ansonsten (wenn 'English' gesetzt ist), gib Englisch zurück
-    return english_text
+#     if st.session_state.language == "German":
+#         st.session_state.language = "English"
+#     else:
+#         st.session_state.language = "German"
 
 
 @st.cache_resource
@@ -87,10 +79,10 @@ QUIZ_DGS_CLASSES = {
 
 # --- Lernfeld-Namen für die Überschrift ---
 LF_NAMES = {
-    1: "Bauelemente mit handgeführten Werkzeugen fertigen",
-    2: "Bauelemente mit Maschinen fertigen",
-    3: "Baugruppen herstellen und montieren",
-    4: "Technische Systeme instand halten",
+    1: translate("Manufacture components with hand-held tools","Bauelemente mit handgeführten Werkzeugen fertigen"),
+    2: translate("Manufacture components with machines","Bauelemente mit Maschinen fertigen"),
+    3: translate("Manufacture and assemble components","Baugruppen herstellen und montieren"),
+    4: translate("Maintain technical systems","Technische Systeme instand halten"),
 }
 # ------------------------------------------
 
@@ -183,7 +175,7 @@ def check_answer(
             update_stats(current_lf, points)
             st.session_state.mc_result = "CORRECT"  # Flag ist gesetzt!
             st.success(
-                f"🎉 Richtig! Du hast das Werkzeug **{expected_answer}** richtig "
+                f" Richtig! Du hast das Werkzeug **{expected_answer}** richtig "
                 f"gewählt und {points} XP verdient."
             )
 
@@ -194,7 +186,7 @@ def check_answer(
 
             # Textanpassung:
             st.error(
-                f"❌ Das war leider die falsche Antwort. Richtig wäre "
+                f" Das war leider die falsche Antwort. Richtig wäre "
                 f"**{expected_answer}** gewesen."
             )
 
@@ -216,9 +208,9 @@ def check_answer(
 
             # 2. Feedback
             if st.session_state.mc_result == "CORRECT":
-                st.success("🤟 DGS erkannt! Weiter zur nächsten Frage.")
+                st.success(" DGS erkannt! Weiter zur nächsten Frage.")
             else:
-                st.success("🤟 Korrektur erfolgreich! Weiter zur nächsten Frage.")
+                st.success(" Korrektur erfolgreich! Weiter zur nächsten Frage.")
 
             # 3. Aufräumen des Zustands und XP-Vergabe
             st.session_state.dgs_challenge_passed = (
@@ -242,7 +234,7 @@ QUIZ_DATA = [
             "Ein Azubi soll auf einem Metallblech eine Schnittlinie vorzeichnen. "
             "Er braucht ein präzises, spitzes Werkzeug."
         ),
-        "question": "Welches Werkzeug wird zum Anreißen verwendet?",
+        "question": translate("Which tool is used for marking?","Welches Werkzeug wird zum Anreißen verwendet?"),
         "type": "A_TOOL",
         "options": ["Messschieber", "Anreißnadel", "Körner", "Bleistift"],
         "answer": "Anreißnadel",
@@ -614,11 +606,11 @@ def render_dgs_challenge_ui(expected_gebärde, current_lf):
     # 1. Status-Meldungen basierend auf MC-Frage (beibehalten von der neuen Logik)
     if st.session_state.mc_result == "CORRECT":
         st.warning(
-            "🤟 Richtig! Zeige die Gebärde **zur Bestätigung**, um den Block abzuschließen und weiterzukommen!"
+            " Richtig! Zeige die Gebärde **zur Bestätigung**, um den Block abzuschließen und weiterzukommen!"
         )
     elif st.session_state.mc_result == "INCORRECT":
         st.error(
-            "⚠️ Korrekturübung: Du hattest die MC-Frage falsch. Zeige jetzt die Gebärde **zur Festigung**."
+            "️ Korrekturübung: Du hattest die MC-Frage falsch. Zeige jetzt die Gebärde **zur Festigung**."
         )
     else:
         st.info("Zeige die Gebärde, um die Challenge zu starten.") 
@@ -679,7 +671,7 @@ def render_dgs_challenge_ui(expected_gebärde, current_lf):
         progress = st.empty()
         progress.progress(0)
     
-    # ⚠️ WIEDEREINFÜHRUNG DER BLOCKIERENDEN SCHLEIFE ⚠️
+    # ️ WIEDEREINFÜHRUNG DER BLOCKIERENDEN SCHLEIFE ️
     # Diese Logik basiert auf Ihrer funktionierenden alten Version
     if webrtc_ctx and webrtc_ctx.state.playing and not st.session_state.dgs_challenge_passed:
         
@@ -711,17 +703,17 @@ def render_dgs_challenge_ui(expected_gebärde, current_lf):
     col1, col2, _ = st.columns([1, 1, 3])
 
     with col1:
-        if st.button("🚫 Challenge beenden (Quiz abbrechen)", type="secondary"):
+        if st.button(" Challenge beenden (Quiz abbrechen)", type="secondary"):
             st.session_state.quiz_index = len(QUIZ_DATA)
             st.rerun()
 
     with col2:
-        if st.button("⏩ Gebärde überspringen (0 Punkte)", type="secondary"):
+        if st.button(" Gebärde überspringen (0 Punkte)", type="secondary"):
             # Ruft check_answer auf, um den Index zu erhöhen und den Zustand zurückzusetzen
             check_answer("C_DGS", None, None, current_lf, expected_gebärde, dgs_passed=True)
 
     if st.session_state.dgs_challenge_passed:
-        st.success("✅ Challenge bestanden! Weiter zur nächsten Frage.")
+        st.success(" Challenge bestanden! Weiter zur nächsten Frage.")
         if st.button("Nächste Frage", type="primary"):
             # Ruft check_answer auf, um den Score zu erhöhen und den Index zu erhöhen.
             check_answer("C_DGS", None, None, current_lf, expected_gebärde, dgs_passed=True)
@@ -734,7 +726,7 @@ def render_quiz_simulation():
     
     # --- Login-Logik ---
     if "username" not in st.session_state or st.session_state.username == "Azubi":
-        st.title("Willkommen zum Werkstatt-Quiz! 👋")
+        st.title(translate("Welcome to Workshop-Quizz","Willkommen zum Werkstatt-Quiz!"))
         st.markdown(
             "Bitte gib deinen Namen ein, um deine Lern-Erfolge zu speichern \n"
             "und mit XP zu sammeln."
@@ -752,25 +744,25 @@ def render_quiz_simulation():
     current_index = st.session_state.quiz_index
 
     # --- Sprachwechsel-Button (wird angenommen, dass er existiert) ---
-    _, col_lang_button = st.columns([10, 1])
-    with col_lang_button:
-        # toggle_language muss in Ihrer Datei existieren
-        if "language" not in st.session_state: st.session_state.language = "German"
-        current_lang = st.session_state.language
-        button_label = "🇬🇧" if current_lang == "German" else "🇩🇪"
-        button_tooltip = "Switch to English" if current_lang == "German" else "Zurück zu Deutsch"
-        st.button(
-            button_label,
-            on_click=toggle_language,
-            help=button_tooltip,
-            key="language_toggle_button",
-        )
+    # _, col_lang_button = st.columns([10, 1])
+    # with col_lang_button:
+    #     # toggle_language muss in Ihrer Datei existieren
+    #     if "language" not in st.session_state: st.session_state.language = "German"
+    #     current_lang = st.session_state.language
+    #     button_label = "🇬🇧" if current_lang == "German" else "🇩🇪"
+    #     button_tooltip = "Switch to English" if current_lang == "German" else "Zurück zu Deutsch"
+    #     st.button(
+    #         button_label,
+    #         on_click=toggle_language,
+    #         help=button_tooltip,
+    #         key="language_toggle_button",
+    #     )
 
     # --- Ende des Quiz ---
     if current_index >= len(QUIZ_DATA): # QUIZ_DATA muss in Ihrer Datei existieren
         st.balloons()
         st.success(
-            f"🥳 **Glückwunsch, {st.session_state.username}!** \n"
+            f"**Glückwunsch, {st.session_state.username}!** \n"
             f"Du hast alle Fragen beantwortet."
         )
         st.markdown(f"**Gesamt-XP: {st.session_state.quiz_xp}**")
@@ -790,8 +782,8 @@ def render_quiz_simulation():
     lf_start_index = next((i for i, q in enumerate(QUIZ_DATA) if q["lf"] == lf_num), 0)
     lf_current_step = current_index - lf_start_index + 1
 
-    st.title(f"🕹️ Werkstatt-Simulation: Lernfeld {lf_num} -- {lf_name}")
-    st.subheader(f"Schritt {lf_current_step} von {lf_total_steps} in LF {lf_num}")
+    st.title(translate(f"Workshop simulation: learning field {lf_num} -- {lf_name}",f"Werkstatt-Simulation: Lernfeld {lf_num} -- {lf_name}"))
+    st.subheader(translate(f"Step {lf_current_step} of {lf_total_steps} in LF {lf_num}",f"Schritt {lf_current_step} von {lf_total_steps} in LF {lf_num}"))
     st.markdown(
         f"**Aktuelle XP: {st.session_state.quiz_xp}** \n"
         f"(Hallo, **{st.session_state.username}**)"
@@ -849,7 +841,7 @@ def render_quiz_simulation():
 
     # --- Benutzer-Login (Einfache Eingabe) ---
     if "username" not in st.session_state or st.session_state.username == "Azubi":
-        st.title("Willkommen zur Lern-Challenge! 👋")
+        st.title("Willkommen zur Lern-Challenge! ")
         st.markdown(
             "Bitte gib deinen Namen ein, um deine Lern-Erfolge zu speichern \n"
             "und mit XP zu sammeln."
@@ -867,36 +859,36 @@ def render_quiz_simulation():
     current_index = st.session_state.quiz_index
 
     # --- HIER IST DER NEUE SPRACHWECHSEL BUTTON ---
-    _, col_lang_button = st.columns([10, 1])
+    # _, col_lang_button = st.columns([10, 1])
 
-    with col_lang_button:
-        # Initialisiere die Sprache, falls sie beim ersten Laden noch nicht existiert
-        if "language" not in st.session_state:
-            st.session_state.language = "German"
+    # with col_lang_button:
+    #     # Initialisiere die Sprache, falls sie beim ersten Laden noch nicht existiert
+    #     if "language" not in st.session_state:
+    #         st.session_state.language = "German"
 
-        current_lang = st.session_state.language
+    #     current_lang = st.session_state.language
 
-        # Text auf dem Button: Nur Flagge
-        if current_lang == "German":
-            button_label = "🇬🇧"
-            button_tooltip = "Switch to English"
-        else:
-            button_label = "🇩🇪"
-            button_tooltip = "Zurück zu Deutsch"
+    #     # Text auf dem Button: Nur Flagge
+    #     if current_lang == "German":
+    #         button_label = "🇬🇧"
+    #         button_tooltip = "Switch to English"
+    #     else:
+    #         button_label = "🇩🇪"
+    #         button_tooltip = "Zurück zu Deutsch"
 
-        # Den Button mit der Umschaltfunktion
-        st.button(
-            button_label,
-            on_click=toggle_language,
-            help=button_tooltip,
-            key="language_toggle_button",
-        )
+    #     # Den Button mit der Umschaltfunktion
+    #     st.button(
+    #         button_label,
+    #         on_click=toggle_language,
+    #         help=button_tooltip,
+    #         key="language_toggle_button",
+    #     )
 
     # 3. PRÜFEN: ENDE DES QUIZ ERREICHT?
     if current_index >= len(QUIZ_DATA):
         st.balloons()
         st.success(
-            f"🥳 **Glückwunsch, {st.session_state.username}!** \n"
+            f"**Glückwunsch, {st.session_state.username}!** \n"
             f"Du hast alle Fragen beantwortet."
         )
         st.markdown(f"**Gesamt-XP: {st.session_state.quiz_xp}**")
@@ -916,9 +908,9 @@ def render_quiz_simulation():
     lf_start_index = next((i for i, q in enumerate(QUIZ_DATA) if q["lf"] == lf_num), 0)
     lf_current_step = current_index - lf_start_index + 1
 
-    st.title(f"🕹️ Werkstatt-Simulation: Lernfeld {lf_num} -- {lf_name}")
+    st.title(translate(f"Workshop simulation: learning field {lf_num} -- {lf_name}",f"Werkstatt-Simulation: Lernfeld {lf_num} -- {lf_name}"))
 
-    st.subheader(f"Schritt {lf_current_step} von {lf_total_steps} in LF {lf_num}")
+    st.subheader(translate(f"Step {lf_current_step} of {lf_total_steps} in LF {lf_num}",f"Schritt {lf_current_step} von {lf_total_steps} in LF {lf_num}"))
     st.markdown(
         f"**Aktuelle XP: {st.session_state.quiz_xp}** \n"
         f"(Hallo, **{st.session_state.username}**)"
