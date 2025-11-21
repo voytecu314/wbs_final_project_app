@@ -236,7 +236,7 @@ def render_quiz_tools():
                     st.success(translate("Correct!","Richtig!") +"10 XP")
                     st.session_state.xp += 10
                 else:
-                    st.error(f"{translate('Wrong, correct answer','Falsch. Richtige Antwort:')} {st.session_state.correct_letter}")
+                    st.error(f"{translate('Wrong. Correct answer: ','Falsch. Richtige Antwort:')} {st.session_state.correct_letter}")
 
                 # --------------------------------------
                 # SAVE REAL QUIZ HISTORY ENTRY
