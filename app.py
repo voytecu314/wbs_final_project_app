@@ -2499,12 +2499,12 @@ st.sidebar.button(translate("Home","Startseite"), on_click=button_effects, args=
 st.sidebar.button(translate("Learn Chat","Mit Chat lernen"), on_click=button_effects, args=("Learn Chat",))
 # --- QUIZ SECTION ---
 quizes = ["Choose a quiz:",
-          translate("GSL Challange","DGS Training"),
+          translate("GSL Training","DGS Training"),
           translate("RAG Quiz","RAG Quiz"),
           translate("Workshop Quiz","Werkstatt Quiz")]
 
 with st.sidebar.expander(
-    translate("Challenges","Teste sich"),
+    translate("Challenges","Teste dich"),
     expanded = "quiz_nav" in st.session_state
     ):
     quiz_page = st.radio(
@@ -2541,7 +2541,7 @@ elif st.session_state.page == "Workshop Quiz" or st.session_state.page == "Werks
     render_quiz_simulation()
 elif st.session_state.page == "RAG Quiz":
     render_quiz_tools()
-elif st.session_state.page == "GSL Challange" or st.session_state.page == "DGS Training":
+elif st.session_state.page == "GSL Training" or st.session_state.page == "DGS Training":
     render_quiz_hand_signs()
 elif st.session_state.page == "STATS":
     render_stats_page()
