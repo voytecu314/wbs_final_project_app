@@ -5,6 +5,7 @@ import pandas as pd
 import redis
 import streamlit as st
 from dotenv import load_dotenv
+from utils import translate
 
 load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL")
@@ -69,10 +70,9 @@ def add_score(r: redis.Redis, name: str, score: int):
 
 def main():
     if st.session_state.points > 0:
-        if st.button(
-            f"Submit {round(st.session_state.points)} points"
-            if st.session_state.language == "English"
-            else f"{round(st.session_state.points)} Punkte einreichen",
+        if st.button(translate(
+            f"Submit {round(st.session_state.points)} points",
+            f"{round(st.session_state.points)} Punkte einreichen"),
             key="submit_button",
         ):
             add_score(
