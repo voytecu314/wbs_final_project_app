@@ -136,12 +136,12 @@ def render_home():
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("💬 Chat", type="primary", use_container_width=True, key="chat_btn"):
+        if st.button("💬 Learning Chat", type="primary", use_container_width=True, key="chat_btn"):
             st.session_state.page = "Learn Chat"
             st.rerun()
     
     with col2:
-        if st.button("🛠️ Werkstatt-Quiz", use_container_width=True, key="quiz_btn"):
+        if st.button(translate("🛠️ Workshop quiz simulations", "🛠️ Werkstatt-Quiz-Simulationen"), use_container_width=True, key="quiz_btn"):
             st.session_state.page = "Workshop Quiz"
             st.rerun()
     
